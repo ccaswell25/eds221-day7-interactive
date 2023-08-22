@@ -1,0 +1,67 @@
+---
+title: "eds221day7interactive"
+author: "carly"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+## *Data Wrangling Refresher*
+
+Starting from penguins...
+
+1.  *Only include penguins at dream and biscoe islands*
+
+    ```{r}
+    penguins %>% 
+      filter(island == "Dream" | island == "Biscoe")
+    ```
+
+*2. Remove the year and sex variables*
+
+```{r}
+penguins_removed <- penguins %>%
+  select(-year, -sex)
+```
+
+3.  *Add a new column body_mass_kg with penguin mass converted from g to kg*
+
+    ```{r}
+    body_mass_kg <- penguins %>% 
+      mutate(body_mass_kg = body_mass_g / 1000)
+    ```
+
+4.  *Rename the island variable to location*
+
+    ```{r}
+    penguins %>% 
+      rename("location" = "island")
+    ```
+
+Starting from penguins, write a single piped sequence to:
+
+-limit to adelie penguins
+
+-remove obs where flipper length mm is NA (drop_na())
+
+-group the data by sex
+
+-create a summary table that contains the mean, sd, and sample size of flipper length
+
+```{r}
+penguins %>% 
+  filter(species == "Adelie") %>% 
+  drop_na(flipper_length_mm, sex) %>% 
+  group_by(sex) %>% 
+  summarise(mean_flipper = mean(flipper_length_mm), sd_flipper = sd(flipper_length_mm), count = n())
+```
+
+Another way to get the sample size of groups is to use count...
+
+```{r}
+penguins %>% count(species, island, sex, name = "count")
+```
