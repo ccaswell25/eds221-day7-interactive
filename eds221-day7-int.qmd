@@ -111,12 +111,184 @@ left_join_example <- left_join(animals, sites)
 inner_join_example <- inner_join(animals, sites)
 ```
 
-## Formatting Dates
+## Formatting Dates with Lubridate()
 
 We can use **lubridate** package!
+
+ymd: if the date is in year-month-day
+
+mdy: if the date is in month-day-year
+
+dmy: if the date is in day-month-year
+
+```{r}
+lubridate::mdy("03-15-1998")
+```
+
+```{r}
+my_date_2 <- lubridate::mdy("11/7/2003")
+class(my_date_2)
+
+my_date_3 <- lubridate::dmy("08-Jun-1974")
+my_date_3
+```
+
+Can we break the lubridate parsing function?
+
+Yes, if you give the wrong function for the format of the date, you will get a parsing error.
+
+```{r}
+my_date_5 <-lubridate::dmy("06-20-2001")
+```
+
+Adding times to our dates:
+
+```{r}
+time_1 <- lubridate::ymd_hm("2020-08-12 11:18")
+time_1
+```
+
+June 2, 1982 at 4pm UTC as a date in R:
+
+```{r}
+time_3 <- lubridate::mdy_hm("June 2, 1982 16:00")
+time_3
+```
+
+Converting Timezones:
+
+```{r}
+lubridate::with_tz(time_3, "America/Los_Angeles")
+```
+
+```{r}
+time_4 <- lubridate::mdy_hm("August 22, 2023 13:00PM")
+time_4
+lubridate::with_tz(time_4, "America/Punta_Arenas")
+```
+
+```{r}
+now <- lubridate::with_tz(Sys.time(), "Europe/Paris")
+```
+
+Access different parts of date-times:
+
+Give me the day that is today
+
+```{r}
+lubridate::day(now)
+```
+
+Give me the week of the year of our now date
+
+```{r}
+lubridate::week(now)
+```
+
+Give me the second that is of the now date
+
+```{r}
+lubridate::second(now)
+```
+
+```{r}
+urchin_counts <- data.frame(
+  date = c("Oct 12, 2005", "October 18, 2007", "February 12, 2003", "February 14, 2008"),
+  species = c("purple", "red", "red", "red"),
+  size_mm = c(19, 24, 18, 11)
+)
+```
+
+How do we update the date column to get it in ISO format?
+
+```{r}
+urchin_mean_by_month <- urchin_counts |>
+  mutate(date = lubridate::mdy(date))  |>
+  mutate(month = lubridate::month(date)) |>
+  group_by(month) |>
+  summarise(mean_size = mean(size_mm))
+```
+
+## Strings with Stringr
 
 We can work with strings using the **stringr** package!
 
 -str_detect() - is the pattern detected T/F?
 
 -str_replace() - replace a string pattern with something else
+
+```{r}
+my_string <- "Kona loves carrots and kibble and toys"
+```
+
+```{r}
+str_detect(my_string, pattern = "carrots")
+#we are asking if our string contains the pattern carrots? in this case it returns true because it does.
+```
+
+```{r}
+my_string_2 <- c("burrito", "fish taco", "Taco salad", "super burrito")
+```
+
+```{r}
+str_detect(my_string_2, "burrito")
+#we are asking to look at each element individually to determine true/false if the string is detected. This is case sensitive. 
+```
+
+Lets create a subset of data to only show rows that have the name "Skywalker" in the Star Wars dataset
+
+```{r}
+starwars %>% 
+  filter(str_detect(name, pattern = "Skywalker"))
+```
+
+What if we want to replace strings in the data with a new value?
+
+```{r}
+starwars %>% 
+  mutate(name_new = str_replace(name, pattern = "Sky", replacement = "Fire"))
+```
+
+We can use str_trim to get rid of leading and trailing whitespace
+
+```{r}
+my_string_3 <- "     Hi my name    is Carly "
+str_trim(my_string_3)
+```
+
+We can use str_squish to get rid of leading and trailing whitespace AND excess interior white space
+
+```{r}
+str_squish(my_string_3)
+```
+
+Convert to lowercase
+
+```{r}
+str_to_lower(my_string_3)
+```
+
+Convert to uppercase
+
+```{r}
+str_to_upper(my_string_3)
+```
+
+Convert to title
+
+```{r}
+str_to_title(my_string_3)
+```
+
+Convert to sentence case
+
+```{r}
+str_to_sentence(my_string_3)
+```
+
+Make a new column with all lowercase values for species
+
+```{r}
+starwars %>% 
+  mutate(new = str_to_lower(species))
+```
